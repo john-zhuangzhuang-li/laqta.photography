@@ -1,71 +1,197 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import styles from '../styles/Home.module.css'
+import { LayoutGroup, motion } from "framer-motion";
+import Head from "next/head";
+import randomItem from "random-item";
+import { useLayoutEffect } from "react";
+import styles from "../styles/Home.module.css";
+
+const paths = [
+  "M67.9 -108.5C96.5 -101.1 134 -100.1 161.6 -83C189.3 -66 207.2 -33 197.5 -5.6C187.8 21.8 150.6 43.7 123.9 62.3C97.1 80.9 80.8 96.3 61.9 110.7C43 125.1 21.5 138.6 -2.9 143.6C-27.3 148.7 -54.7 145.4 -70.9 129.4C-87.1 113.4 -92.3 84.8 -111 61.2C-129.6 37.5 -161.8 18.8 -177.6 -9.1C-193.4 -37 -192.8 -74 -172 -93.9C-151.2 -113.8 -110.1 -116.7 -78 -122C-46 -127.3 -23 -135.2 -1.7 -132.3C19.7 -129.4 39.3 -115.8 67.9 -108.5",
+  "M69.7 -125.3C90.8 -108.6 108.6 -90.8 134 -69.7C159.3 -48.7 192.1 -24.3 195.8 2.1C199.4 28.5 173.7 57 151.6 83.6C129.4 110.1 110.7 134.7 86 142.5C61.3 150.2 30.7 141.1 -2.7 145.9C-36.2 150.6 -72.3 169.3 -99.3 162.9C-126.3 156.5 -144.1 125 -151.2 93.7C-158.3 62.3 -154.6 31.2 -155.2 -0.3C-155.8 -31.8 -160.6 -63.7 -144.8 -79.9C-129 -96.1 -92.6 -96.8 -65.1 -109.7C-37.5 -122.6 -18.8 -147.8 2.8 -152.6C24.3 -157.5 48.7 -142 69.7 -125.3",
+  "M83 -145.5C110.8 -127.8 138.5 -111.9 146.2 -88C153.9 -64 141.4 -32 139.7 -1C138 30 146.9 60 143.9 92C140.9 124.1 126 158.2 100 161.9C74 165.7 37 139.1 5.7 129.3C-25.7 119.5 -51.3 126.4 -83.8 126.4C-116.3 126.4 -155.6 119.5 -171.4 97.2C-187.2 75 -179.6 37.5 -172.7 4C-165.8 -29.5 -159.5 -59 -145.1 -83.7C-130.7 -108.4 -108.1 -128.2 -82.5 -147.1C-57 -166.1 -28.5 -184 -0.4 -183.3C27.7 -182.6 55.3 -163.2 83 -145.5",
+  "M67.9 -108.5C96.5 -101.1 134 -100.1 161.6 -83C189.3 -66 207.2 -33 197.5 -5.6C187.8 21.8 150.6 43.7 123.9 62.3C97.1 80.9 80.8 96.3 61.9 110.7C43 125.1 21.5 138.6 -2.9 143.6C-27.3 148.7 -54.7 145.4 -70.9 129.4C-87.1 113.4 -92.3 84.8 -111 61.2C-129.6 37.5 -161.8 18.8 -177.6 -9.1C-193.4 -37 -192.8 -74 -172 -93.9C-151.2 -113.8 -110.1 -116.7 -78 -122C-46 -127.3 -23 -135.2 -1.7 -132.3C19.7 -129.4 39.3 -115.8 67.9 -108.5",
+  "M70.9 -114.1C101.8 -104.9 143.6 -106 163.6 -88.7C183.6 -71.3 181.8 -35.7 180.2 -0.9C178.6 33.8 177.2 67.7 162.7 94.5C148.2 121.4 120.6 141.2 91.3 157.8C62 174.4 31 187.7 -3.2 193.3C-37.5 199 -75 196.9 -91.5 172.9C-107.9 148.9 -103.3 103 -103.3 70.5C-103.3 38 -107.9 19 -111.1 -1.8C-114.3 -22.7 -116 -45.3 -113.5 -73.5C-111 -101.6 -104.3 -135.2 -84.6 -150.9C-65 -166.6 -32.5 -164.3 -6.3 -153.5C20 -142.6 40 -123.3 70.9 -114.1",
+  "M65.6 -115.2C93.8 -97.5 131.3 -97.5 146.1 -81.2C160.9 -65 153 -32.5 143.3 -5.6C133.6 21.3 122.2 42.7 108 59.8C93.7 77 76.6 90 58.1 111C39.7 132 19.8 161 -1.2 163.2C-22.3 165.3 -44.7 140.7 -68.8 122.9C-92.9 105.2 -118.8 94.3 -145.1 75C-171.4 55.7 -198.2 27.8 -194.3 2.3C-190.4 -23.3 -155.8 -46.7 -128.2 -63.7C-100.5 -80.7 -79.7 -91.5 -59.5 -113.8C-39.3 -136.1 -19.7 -170.1 -0.5 -169.3C18.8 -168.5 37.5 -133 65.6 -115.2",
+  "M62.7 -119.1C86.1 -95.1 113.2 -88.1 126.7 -71C140.2 -54 140.1 -27 149 5.2C158 37.3 176 74.7 164.9 95.9C153.8 117.1 113.7 122.2 81.3 125.2C49 128.2 24.5 129.1 0.2 128.8C-24.2 128.5 -48.3 127 -64.6 114.8C-80.8 102.5 -89.1 79.4 -109.4 58.4C-129.6 37.5 -161.8 18.8 -174.7 -7.5C-187.6 -33.7 -181.3 -67.3 -159 -84.7C-136.6 -102 -98.3 -102.9 -69.2 -123.6C-40 -144.3 -20 -184.6 -0.2 -184.4C19.7 -184.1 39.3 -143.1 62.7 -119.1",
+  "M88.6 -145.3C120.2 -135.2 154.9 -122.4 159.4 -97.7C163.9 -73 138.2 -36.5 134.2 -2.3C130.1 31.8 147.8 63.7 146.8 94.4C145.8 125.2 126.1 154.8 98.6 158.9C71 163 35.5 141.5 4.3 134C-26.8 126.5 -53.7 133 -70.1 122.5C-86.6 112 -92.7 84.5 -116.7 61.2C-140.8 38 -182.9 19 -194.7 -6.8C-206.6 -32.7 -188.2 -65.3 -160.2 -81.8C-132.2 -98.2 -94.6 -98.5 -66.3 -110.5C-38 -122.5 -19 -146.2 4.7 -154.5C28.5 -162.7 57 -155.4 88.6 -145.3",
+  "M101.7 -177.4C133 -158 160.5 -133.2 174.2 -102.8C188 -72.3 188 -36.2 179.5 -4.9C170.9 26.3 153.9 52.7 140.6 83.8C127.2 115 117.6 151 94.8 173C72 195 36 203 3.5 197C-29 190.9 -58 170.8 -81.7 149.3C-105.3 127.8 -123.7 104.9 -131.2 79.8C-138.7 54.7 -135.3 27.3 -128.4 4C-121.5 -19.3 -111 -38.7 -98.3 -54.9C-85.7 -71.1 -71 -84.3 -54.2 -112.1C-37.5 -140 -18.8 -182.5 8.2 -196.7C35.2 -210.9 70.3 -196.8 101.7 -177.4",
+  "M106.8 -180.6C138.5 -166.6 164.5 -138.3 180.1 -105.8C195.7 -73.3 200.8 -36.7 186.8 -8.1C172.8 20.5 139.7 41 117.3 61.6C94.8 82.3 83.2 103.1 65.4 111.6C47.7 120.1 23.8 116.3 0.7 115.1C-22.5 114 -45 115.4 -62.3 106.7C-79.6 97.9 -91.8 79 -104.7 59.5C-117.6 40 -131.3 20 -136.4 -2.9C-141.4 -25.8 -137.8 -51.7 -128.5 -77.4C-119.2 -103.1 -104.1 -128.6 -81.7 -148C-59.3 -167.4 -29.7 -180.7 3.9 -187.5C37.5 -194.3 75 -194.6 106.8 -180.6",
+  "M84.6 -144.4C110.6 -131.6 133.3 -110.8 138.8 -85.4C144.3 -60 132.6 -30 134.2 0.9C135.8 31.8 150.6 63.7 147.8 93.7C144.9 123.7 124.5 151.9 96.9 173.5C69.3 195.1 34.7 210 4.8 201.7C-25 193.3 -50 161.6 -73.8 137.9C-97.6 114.1 -120.3 98.3 -126.5 76.7C-132.8 55 -122.6 27.5 -129.9 -4.2C-137.1 -35.8 -161.6 -71.7 -159.9 -101.1C-158.1 -130.6 -130.1 -153.6 -99 -163.5C-68 -173.4 -34 -170.2 -2.3 -166.2C29.3 -162.1 58.7 -157.3 84.6 -144.4",
+];
+
+const galleries = [
+  {
+    key: "istanbul",
+    name: "Istanbul",
+    image: "https://s3-us-west-2.amazonaws.com/s.cdpn.io/222579/beagle400.jpg",
+    paths: randomItem.multiple(
+      paths,
+      Math.max(4, Math.floor(Math.random() * paths.length))
+    ),
+  },
+  {
+    key: "antalya",
+    name: "Antalya",
+    image: "https://s3-us-west-2.amazonaws.com/s.cdpn.io/222579/beagle400.jpg",
+    paths: randomItem.multiple(
+      paths,
+      Math.max(4, Math.floor(Math.random() * paths.length))
+    ),
+  },
+];
+
+const Blob = ({ gallery }: { gallery: typeof galleries[0] }) => {
+  useLayoutEffect(() => {}, []);
+
+  // console.log(randomPaths);
+
+  return (
+    <>
+      <svg
+        className="blob-motion"
+        id="visual"
+        viewBox="0 0 400 400"
+        width="400"
+        height="400"
+        xmlns="http://www.w3.org/2000/svg"
+        version="1.1"
+      >
+        <g>
+          <defs>
+            <clipPath id="shape">
+              <LayoutGroup id={gallery.key}>
+                <motion.path
+                  layoutId={gallery.key}
+                  style={{
+                    fill: "#9565c8",
+                    transform: "translate(200px, 200px)",
+                  }}
+                  animate={{
+                    d: paths,
+                    repeatCount: Infinity,
+                    autoReverse: true,
+                  }}
+                  transition={{
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    duration: paths.length,
+                    reverse: true,
+                    repeatType: "reverse",
+                    bounce: true,
+                    bounceStiffness: 10,
+                  }}
+                />
+              </LayoutGroup>
+            </clipPath>
+          </defs>
+          <image
+            style={{ position: "absolute", top: 100, left: 100 }}
+            clipPath="url(#shape)"
+            xlinkHref={gallery.image}
+          />
+        </g>
+
+        {/* <g transform="translate(444.230544523902 293.5535771599937)">
+        <animated.path
+          id="blob1"
+          d="M67.9 -108.5C96.5 -101.1 134 -100.1 161.6 -83C189.3 -66 207.2 -33 197.5 -5.6C187.8 21.8 150.6 43.7 123.9 62.3C97.1 80.9 80.8 96.3 61.9 110.7C43 125.1 21.5 138.6 -2.9 143.6C-27.3 148.7 -54.7 145.4 -70.9 129.4C-87.1 113.4 -92.3 84.8 -111 61.2C-129.6 37.5 -161.8 18.8 -177.6 -9.1C-193.4 -37 -192.8 -74 -172 -93.9C-151.2 -113.8 -110.1 -116.7 -78 -122C-46 -127.3 -23 -135.2 -1.7 -132.3C19.7 -129.4 39.3 -115.8 67.9 -108.5"
+          fill=" #9565c8"
+        ></animated.path>
+      </g>
+
+      <g
+        style={{ visibility: "hidden" }}
+        transform="translate(430.10450775788587 294.64951169825065)"
+      >
+        <animated.path
+          id="blob2"
+          d="M69.7 -125.3C90.8 -108.6 108.6 -90.8 134 -69.7C159.3 -48.7 192.1 -24.3 195.8 2.1C199.4 28.5 173.7 57 151.6 83.6C129.4 110.1 110.7 134.7 86 142.5C61.3 150.2 30.7 141.1 -2.7 145.9C-36.2 150.6 -72.3 169.3 -99.3 162.9C-126.3 156.5 -144.1 125 -151.2 93.7C-158.3 62.3 -154.6 31.2 -155.2 -0.3C-155.8 -31.8 -160.6 -63.7 -144.8 -79.9C-129 -96.1 -92.6 -96.8 -65.1 -109.7C-37.5 -122.6 -18.8 -147.8 2.8 -152.6C24.3 -157.5 48.7 -142 69.7 -125.3"
+          fill=" #9565c8"
+        ></animated.path>
+      </g>
+
+      <g
+        style={{ visibility: "hidden" }}
+        transform="translate(466.0172883742443 310.5255861036318)"
+      >
+        <animated.path
+          id="blob3"
+          d="M83 -145.5C110.8 -127.8 138.5 -111.9 146.2 -88C153.9 -64 141.4 -32 139.7 -1C138 30 146.9 60 143.9 92C140.9 124.1 126 158.2 100 161.9C74 165.7 37 139.1 5.7 129.3C-25.7 119.5 -51.3 126.4 -83.8 126.4C-116.3 126.4 -155.6 119.5 -171.4 97.2C-187.2 75 -179.6 37.5 -172.7 4C-165.8 -29.5 -159.5 -59 -145.1 -83.7C-130.7 -108.4 -108.1 -128.2 -82.5 -147.1C-57 -166.1 -28.5 -184 -0.4 -183.3C27.7 -182.6 55.3 -163.2 83 -145.5"
+          fill=" #9565c8"
+        ></animated.path>
+      </g> */}
+      </svg>
+    </>
+  );
+};
 
 export default function Home() {
   return (
     <div className={styles.container}>
       <Head>
-        <title>Create Next App</title>
-        <meta name="description" content="Generated by create next app" />
+        <title>Laqta.Photography - by Mohammed Khatib</title>
+        <meta
+          name="description"
+          content="A photography portfolio created by Mohammed Khatib"
+        />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
+        <section>
+          <div>
+            <h1 className={`${styles.title}`}>
+              <span className="lobster boldest accent-font" style={{}}>
+                Laqta
+              </span>
+              <span
+                style={{
+                  display: "inline-block",
+                  width: "2rem",
+                }}
+              >
+                .
+              </span>
+              <span className="cormorant">photography</span>
+            </h1>
+            <div
+              style={{
+                fontSize: "1rem",
+                marginBottom: "1rem",
+                color: "#818080",
+                textAlign: "end",
+                padding: "0.7rem",
+              }}
+              className="redhat lightest"
+            >
+              by Mohammed Khatib
+            </div>
+          </div>
+          <p className={`${styles.description} redhat lightest`}>
+            Using photography as a tool of{" "}
+            <b className="boldest accent-font">reflection</b>
+          </p>
+        </section>
 
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.tsx</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h2>Learn &rarr;</h2>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className={styles.card}
-          >
-            <h2>Examples &rarr;</h2>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.card}
-          >
-            <h2>Deploy &rarr;</h2>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
+        <section
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "center",
+            marginTop: "1rem",
+          }}
+        >
+          {galleries.map((gallary, index) => (
+            <div className="blob" key={gallary.key}>
+              <div className="blob-content">
+                <h1>{gallary.name}</h1>
+              </div>
+              <Blob gallery={gallary} key={gallary.key} />
+            </div>
+          ))}
+        </section>
       </main>
 
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <span className={styles.logo}>
-            <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
-          </span>
-        </a>
-      </footer>
+      <footer className={styles.footer}></footer>
     </div>
-  )
+  );
 }

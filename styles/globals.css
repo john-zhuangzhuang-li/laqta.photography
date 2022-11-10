@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Infant:ital,wght@1,300&family=Josefin+Slab:wght@100&family=Lobster&family=Red+Hat+Text:wght@300;700&display=swap');
+
 html,
 body {
   padding: 0;
@@ -23,4 +25,60 @@ a {
     color: white;
     background: black;
   }
+}
+
+.lobster {
+  font-family: Lobster;
+}
+
+.boldest {
+  font-weight: 700;
+}
+
+.accent-font {
+  color: #9565c8;
+}
+
+.lightest {
+  font-weight: 100;
+}
+
+.josefin {
+  font-family: "Josefin Slab";
+}
+
+.cormorant {
+  font-family: "Cormorant Infant";
+}
+
+.redhat {
+  font-family: "Red Hat Text";
+}
+
+
+
+.blob-motion {
+  position: absolute;
+  transform: scale(0.8);
+  z-index: 0;
+}
+
+.blob {
+    /* center content */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 400px;
+    width: 400px; 
+}
+
+.blob-content {
+  z-index: 1;
+  color: #d9b6ff;
+  /* padding: 2rem; */
+}
+
+.blobs {
+  width: 100%;
+  /* background: url('./blobs.svg') no-repeat bottom / cover; */
 }
