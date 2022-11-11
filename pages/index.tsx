@@ -66,14 +66,14 @@ const Blob = ({ gallery }: { gallery: typeof galleries[0] }) => {
                     transform: "translate(200px, 200px)",
                   }}
                   animate={{
-                    d: paths,
+                    d: gallery.paths,
                     repeatCount: Infinity,
                     autoReverse: true,
                   }}
                   transition={{
                     repeat: Infinity,
                     ease: "easeInOut",
-                    duration: paths.length,
+                    duration: gallery.paths.length,
                     reverse: true,
                     repeatType: "reverse",
                     bounce: true,
